@@ -97,6 +97,8 @@ struct StyleCircleAuthPage: View {
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(Color.black.opacity(0.46))
                             .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .disabled(runwayMomentAuthIsPreparingNavigation)
@@ -207,13 +209,18 @@ private extension StyleCircleAuthPage {
         let styleCirclePassword = closetChatPasswordText
         let styleCircleConfirmPassword = closetChatConfirmPasswordText
 
-        guard styleCircleIsValidEmail(styleCircleEmail) else {
-            styleCircleShowToast("Please enter a valid email")
+        guard !styleCircleEmail.isEmpty else {
+            styleCircleShowToast("Please enter email")
             return
         }
 
-        guard styleCirclePassword.count >= 6 else {
-            styleCircleShowToast("Password needs at least 6 characters")
+        guard !styleCirclePassword.isEmpty else {
+            styleCircleShowToast("Please enter password")
+            return
+        }
+
+        guard !styleCircleConfirmPassword.isEmpty else {
+            styleCircleShowToast("Please enter the password again")
             return
         }
 
@@ -489,8 +496,4 @@ private struct StyleCircleAuthField: View {
                 .focused(runwayMomentFocus, equals: runwayMomentFocusValue)
         }
     }
-}
-
-#Preview("Sign In") {
-    StyleCircleAuthPage()
 }

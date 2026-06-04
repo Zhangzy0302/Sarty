@@ -2,29 +2,29 @@ import SwiftUI
 import WebKit
 
 private enum SilkBridgeWebPlainKeys {
-    static let webHost = "http://192.168.9.117:5173/"
-    static let users = "users"
-    static let posts = "posts"
-    static let comments = "comments"
-    static let chats = "chats"
-    static let messages = "messages"
-    static let toastMsg = "toastMsg"
-    static let isShow = "isShow"
-    static let isLogout = "isLogout"
-    static let payKey = "payKey"
-    static let avatar = "avator"
-    static let name = "name"
-    static let updateCurrentUser = "updateCurrentUser"
+    static let silkBridgeWebHost = "https://app.s03vifz3.link/"
+    static let silkBridgeUsers = "users"
+    static let silkBridgePosts = "posts"
+    static let silkBridgeComments = "comments"
+    static let silkBridgeChats = "chats"
+    static let silkBridgeMessages = "messages"
+    static let silkBridgeToastMsg = "toastMsg"
+    static let silkBridgeIsShow = "isShow"
+    static let silkBridgeIsLogout = "isLogout"
+    static let silkBridgePayKey = "payKey"
+    static let silkBridgeAvatar = "avator"
+    static let silkBridgeName = "name"
+    static let silkBridgeUpdateCurrentUser = "updateCurrentUser"
 
-    static let emptyObject = "{}"
+    static let silkBridgeEmptyObject = "{}"
 
-    static let currentUserVariable = "window.currentUser"
-    static let userListVariable = "window.userList"
-    static let postListVariable = "window.postList"
-    static let commentListVariable = "window.commentList"
-    static let chatListVariable = "window.chatList"
-    static let messageListVariable = "window.messageList"
-    static let otherVariable = "window.other"
+    static let silkBridgeCurrentUserVariable = "window.currentUser"
+    static let silkBridgeUserListVariable = "window.userList"
+    static let silkBridgePostListVariable = "window.postList"
+    static let silkBridgeCommentListVariable = "window.commentList"
+    static let silkBridgeChatListVariable = "window.chatList"
+    static let silkBridgeMessageListVariable = "window.messageList"
+    static let silkBridgeOtherVariable = "window.other"
 }
 
 @MainActor
@@ -35,7 +35,7 @@ private enum SilkBridgeWebRuntime {
     static var silkBridgePreloadedURL: URL?
 
     static func silkBridgeRootURL() -> URL? {
-        URL(string: SilkBridgeWebPlainKeys.webHost)
+        URL(string: SilkBridgeWebPlainKeys.silkBridgeWebHost)
     }
 
     static func silkBridgePreloadRootPageIfNeeded() {
@@ -161,7 +161,7 @@ final class SilkBridgeWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMe
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.evaluateJavaScript(SilkBridgeWebPlainKeys.currentUserVariable) { _, _ in }
+        webView.evaluateJavaScript(SilkBridgeWebPlainKeys.silkBridgeCurrentUserVariable) { _, _ in }
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -184,31 +184,35 @@ extension SilkBridgeWebCoordinator {
         case showToast
         case showLoading
         case showToLogin
+        case toLogin
     }
 
     private func silkBridgeHandleAction(_ silkBridgeAction: SilkBridgeBridgeAction, body: Any) {
         switch silkBridgeAction {
-        case .close, .showToLogin:
+        case .close:
             silkBridgeCloseHandler()
 
+        case .showToLogin, .toLogin:
+            silkBridgeHandleToLogin()
+
         case .userListUpdate:
-            guard let silkBridgeUsers = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.users) else { return }
+            guard let silkBridgeUsers = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.silkBridgeUsers) else { return }
             silkBridgeStorage.wardrobeShareSaveUsers(ClosetProfileUser.fromJsonArray(silkBridgeUsers))
 
         case .postsUpdate:
-            guard let silkBridgePosts = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.posts) else { return }
+            guard let silkBridgePosts = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.silkBridgePosts) else { return }
             silkBridgeStorage.wardrobeShareSaveWorks(LookbookPostVideo.fromJsonArray(silkBridgePosts))
 
         case .commentsUpdate:
-            guard let silkBridgeComments = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.comments) else { return }
+            guard let silkBridgeComments = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.silkBridgeComments) else { return }
             silkBridgeStorage.wardrobeShareSaveComments(SocialThreadComment.fromJsonArray(silkBridgeComments))
 
         case .chatsUpdate:
-            guard let silkBridgeRooms = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.chats) else { return }
+            guard let silkBridgeRooms = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.silkBridgeChats) else { return }
             silkBridgeStorage.wardrobeShareSaveChatRooms(ClosetChatRoom.fromJsonArray(silkBridgeRooms))
 
         case .messagesUpdate:
-            guard let silkBridgeMessages = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.messages) else { return }
+            guard let silkBridgeMessages = silkBridgeExtractArray(body, key: SilkBridgeWebPlainKeys.silkBridgeMessages) else { return }
             silkBridgeStorage.wardrobeShareSaveChatMessageList(ClosetChatMessage.fromJsonArray(silkBridgeMessages))
 
         case .logout:
@@ -228,9 +232,14 @@ extension SilkBridgeWebCoordinator {
         }
     }
 
+    private func silkBridgeHandleToLogin() {
+        silkBridgeStorage.wardrobeShareSetCurrentUserId("")
+        silkBridgeCloseHandler()
+    }
+
     private func silkBridgeHandleToast(_ body: Any) {
         guard let silkBridgePayload = body as? [String: Any],
-              let silkBridgeMessage = silkBridgePayload[SilkBridgeWebPlainKeys.toastMsg] as? String else {
+              let silkBridgeMessage = silkBridgePayload[SilkBridgeWebPlainKeys.silkBridgeToastMsg] as? String else {
             return
         }
 
@@ -239,7 +248,7 @@ extension SilkBridgeWebCoordinator {
 
     private func silkBridgeHandleLoading(_ body: Any) {
         guard let silkBridgePayload = body as? [String: Any],
-              let silkBridgeShouldShow = silkBridgePayload[SilkBridgeWebPlainKeys.isShow] as? Bool else {
+              let silkBridgeShouldShow = silkBridgePayload[SilkBridgeWebPlainKeys.silkBridgeIsShow] as? Bool else {
             return
         }
 
@@ -252,7 +261,7 @@ extension SilkBridgeWebCoordinator {
 
     private func silkBridgeHandleLogout(_ body: Any) {
         guard let silkBridgePayload = body as? [String: Any],
-              let silkBridgeIsLogout = silkBridgePayload[SilkBridgeWebPlainKeys.isLogout] as? Bool else {
+              let silkBridgeIsLogout = silkBridgePayload[SilkBridgeWebPlainKeys.silkBridgeIsLogout] as? Bool else {
             return
         }
 
@@ -269,7 +278,7 @@ extension SilkBridgeWebCoordinator {
 
     private func silkBridgeHandlePayment(_ body: Any) {
         guard let silkBridgePayload = body as? [String: Any],
-              let silkBridgePayKey = silkBridgePayload[SilkBridgeWebPlainKeys.payKey] as? String else {
+              let silkBridgePayKey = silkBridgePayload[SilkBridgeWebPlainKeys.silkBridgePayKey] as? String else {
             RunwaySignalHUDCenter.shared.runwaySignalShowToast("Payment package unavailable", kind: .error)
             return
         }
@@ -306,10 +315,10 @@ extension SilkBridgeWebCoordinator {
             return
         }
 
-        let silkBridgeAvatar = silkBridgeProfile[SilkBridgeWebPlainKeys.avatar] as? String ?? ""
-        let silkBridgeName = silkBridgeProfile[SilkBridgeWebPlainKeys.name] as? String ?? ""
+        let silkBridgeAvatar = silkBridgeProfile[SilkBridgeWebPlainKeys.silkBridgeAvatar] as? String ?? ""
+        let silkBridgeName = silkBridgeProfile[SilkBridgeWebPlainKeys.silkBridgeName] as? String ?? ""
         let silkBridgeFinalAvatar = silkBridgeAvatar.isEmpty
-            ? "http://huanniuchat.oss-accelerate.aliyuncs.com/Orinx2026/ORINXDefaultAva.png"
+            ? "http://huanniuchat.oss-accelerate.aliyuncs.com/Sarty2026/SART_DEFAULT_AVA.png"
             : silkBridgeAvatar
 
         guard !silkBridgeFinalAvatar.isEmpty else {
@@ -360,14 +369,14 @@ extension SilkBridgeWebCoordinator {
 
         let silkBridgeUserJSON = silkBridgeEncodeValue(
             silkBridgeCurrentUser.toClosetProfileTargetUser(),
-            defaultValue: SilkBridgeWebPlainKeys.emptyObject
+            defaultValue: SilkBridgeWebPlainKeys.silkBridgeEmptyObject
         )
         let silkBridgeEscapedJSON = silkBridgeUserJSON
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
 
         let silkBridgeUpdateScript =
-            "\(SilkBridgeWebPlainKeys.updateCurrentUser)(JSON.parse(\"\(silkBridgeEscapedJSON)\"));"
+            "\(SilkBridgeWebPlainKeys.silkBridgeUpdateCurrentUser)(JSON.parse(\"\(silkBridgeEscapedJSON)\"));"
 
         DispatchQueue.main.async {
             SilkBridgeWebCanvas.silkBridgeCurrentWebView?.evaluateJavaScript(silkBridgeUpdateScript) { _, _ in }
@@ -400,7 +409,7 @@ extension SilkBridgeWebCoordinator {
     private func silkBridgeEncodeAnyValue(_ value: Any) -> String {
         guard let silkBridgeData = try? JSONSerialization.data(withJSONObject: value),
               let silkBridgeJSON = String(data: silkBridgeData, encoding: .utf8) else {
-            return SilkBridgeWebPlainKeys.emptyObject
+            return SilkBridgeWebPlainKeys.silkBridgeEmptyObject
         }
 
         return silkBridgeJSON
@@ -417,19 +426,19 @@ extension SilkBridgeWebCoordinator {
             .map {
                 silkBridgeEncodeValue(
                     $0.toClosetProfileTargetUser(),
-                    defaultValue: SilkBridgeWebPlainKeys.emptyObject
+                    defaultValue: SilkBridgeWebPlainKeys.silkBridgeEmptyObject
                 )
             }
-            ?? SilkBridgeWebPlainKeys.emptyObject
+            ?? SilkBridgeWebPlainKeys.silkBridgeEmptyObject
 
         return """
-            \(SilkBridgeWebPlainKeys.currentUserVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeCurrentUserJSON))');
-            \(SilkBridgeWebPlainKeys.userListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetUsers().map { $0.toClosetProfileTargetUser() })))');
-            \(SilkBridgeWebPlainKeys.postListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetWorks().map { $0.toLookbookPostTargetItem() })))');
-            \(SilkBridgeWebPlainKeys.commentListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetAllComments().map { $0.toSocialThreadTargetComment() })))');
-            \(SilkBridgeWebPlainKeys.chatListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetChatRooms().map { $0.toClosetChatTargetRoom() })))');
-            \(SilkBridgeWebPlainKeys.messageListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetAllMessages().map { $0.toClosetChatTargetMessage() })))');
-            \(SilkBridgeWebPlainKeys.otherVariable) = \(silkBridgeBuildClosetConfig());
+            \(SilkBridgeWebPlainKeys.silkBridgeCurrentUserVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeCurrentUserJSON))');
+            \(SilkBridgeWebPlainKeys.silkBridgeUserListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetUsers().map { $0.toClosetProfileTargetUser() })))');
+            \(SilkBridgeWebPlainKeys.silkBridgePostListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetWorks().map { $0.toLookbookPostTargetItem() })))');
+            \(SilkBridgeWebPlainKeys.silkBridgeCommentListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetAllComments().map { $0.toSocialThreadTargetComment() })))');
+            \(SilkBridgeWebPlainKeys.silkBridgeChatListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetChatRooms().map { $0.toClosetChatTargetRoom() })))');
+            \(SilkBridgeWebPlainKeys.silkBridgeMessageListVariable) = JSON.parse('\(silkBridgeEscapeForJS(silkBridgeEncodeValue(silkBridgeStorage.wardrobeShareGetAllMessages().map { $0.toClosetChatTargetMessage() })))');
+            \(SilkBridgeWebPlainKeys.silkBridgeOtherVariable) = \(silkBridgeBuildClosetConfig());
         """
     }
 
@@ -502,5 +511,8 @@ struct SilkBridgeWebScene: View {
         .navigationBarHidden(true)
         .runwaySlideBackGesture()
         .runwaySignalHUDOverlay()
+        .onAppear {
+            SilkBridgeWebCanvas.silkBridgePreloadRootPageIfNeeded()
+        }
     }
 }

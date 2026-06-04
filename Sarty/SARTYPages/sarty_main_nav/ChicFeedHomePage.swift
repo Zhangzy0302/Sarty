@@ -5,7 +5,9 @@ struct ChicFeedHomePage: View {
     let chicFeedPostRouteAction: () -> Void
     let chicFeedAssistantRouteAction: () -> Void
     let chicFeedPostDetailRouteAction: (String) -> Void
+    let chicFeedCreatorRouteAction: (String) -> Void
     let chicFeedMoreUserAction: (String, @escaping () -> Void) -> Void
+    let chicFeedGuestLimitAction: () -> Void
     @StateObject private var chicFeedPostViewModel = LookbookPostVideoViewModel()
     @StateObject private var chicFeedUserViewModel = ClosetProfileUserViewModel()
 
@@ -13,12 +15,16 @@ struct ChicFeedHomePage: View {
         chicFeedPostRouteAction: @escaping () -> Void = {},
         chicFeedAssistantRouteAction: @escaping () -> Void = {},
         chicFeedPostDetailRouteAction: @escaping (String) -> Void = { _ in },
-        chicFeedMoreUserAction: @escaping (String, @escaping () -> Void) -> Void = { _, _ in }
+        chicFeedCreatorRouteAction: @escaping (String) -> Void = { _ in },
+        chicFeedMoreUserAction: @escaping (String, @escaping () -> Void) -> Void = { _, _ in },
+        chicFeedGuestLimitAction: @escaping () -> Void = {}
     ) {
         self.chicFeedPostRouteAction = chicFeedPostRouteAction
         self.chicFeedAssistantRouteAction = chicFeedAssistantRouteAction
         self.chicFeedPostDetailRouteAction = chicFeedPostDetailRouteAction
+        self.chicFeedCreatorRouteAction = chicFeedCreatorRouteAction
         self.chicFeedMoreUserAction = chicFeedMoreUserAction
+        self.chicFeedGuestLimitAction = chicFeedGuestLimitAction
     }
 
     var body: some View {
@@ -46,10 +52,18 @@ struct ChicFeedHomePage: View {
                                     chicFeedIsLiked: chicFeedUserViewModel.currentUser?.closetProfileLikePosts.contains(chicFeedPost.lookbookPostWorkId) == true,
                                     chicFeedIsFollowing: chicFeedUserViewModel.currentUser?.closetProfileFollowing.contains(chicFeedPost.lookbookPostCreatorId) == true,
                                     chicFeedPostDetailRouteAction: chicFeedPostDetailRouteAction,
+                                    chicFeedCreatorRouteAction: {
+                                        chicFeedCreatorRouteAction(chicFeedPost.lookbookPostCreatorId)
+                                    },
                                     chicFeedLikeToggleAction: {
                                         chicFeedToggleLikePost(chicFeedPost.lookbookPostWorkId)
                                     },
                                     chicFeedFollowToggleAction: {
+                                        chicFeedUserViewModel.loadLoginClosetProfileUser()
+                                        guard !chicFeedUserViewModel.isCurrentLoginUserGuestClosetProfile() else {
+                                            chicFeedGuestLimitAction()
+                                            return
+                                        }
                                         chicFeedToggleFollowUser(chicFeedPost.lookbookPostCreatorId)
                                     },
                                     chicFeedMoreAction: {
@@ -105,29 +119,29 @@ private struct ChicFeedPostNowBanner: View {
     let chicFeedPostRouteAction: () -> Void
 
     var body: some View {
-        ZStack(alignment: .trailing) {
-            Image("SARTY_post_bg")
-                .resizable()
-                .scaledToFill()
-                .frame(height: 82)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        Button {
+            chicFeedPostRouteAction()
+        } label: {
+            ZStack(alignment: .trailing) {
+                Image("SARTY_post_bg")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 82)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-            Image("SARTY_post_decoration")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 96, height: 96)
-                .offset(x: -8, y: -6)
+                Image("SARTY_post_decoration")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 96)
+                    .offset(x: -8, y: -6)
 
-            HStack {
-                VStack(alignment: .leading, spacing: 9) {
-                    Text("High-quality post")
-                        .font(.system(size: 20, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
+                HStack {
+                    VStack(alignment: .leading, spacing: 9) {
+                        Text("High-quality post")
+                            .font(.system(size: 20, weight: .heavy))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
 
-                    Button {
-                        chicFeedPostRouteAction()
-                    } label: {
                         Text("+ Post now")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.black)
@@ -136,13 +150,14 @@ private struct ChicFeedPostNowBanner: View {
                             .background(LookbookShareColorStyle.runwayGlowYellow)
                             .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain)
-                }
 
-                Spacer()
+                    Spacer()
+                }
+                .padding(.leading, 16)
             }
-            .padding(.leading, 16)
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
+        .buttonStyle(.plain)
     }
 }
 
@@ -155,6 +170,7 @@ private struct ChicFeedPostCard: View {
     let chicFeedIsLiked: Bool
     let chicFeedIsFollowing: Bool
     let chicFeedPostDetailRouteAction: (String) -> Void
+    let chicFeedCreatorRouteAction: () -> Void
     let chicFeedLikeToggleAction: () -> Void
     let chicFeedFollowToggleAction: () -> Void
     let chicFeedMoreAction: () -> Void
@@ -178,12 +194,17 @@ private struct ChicFeedPostCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-                CatwalkKitRemoteAvatar(
-                    catwalkKitAvatarURL: chicFeedCreator?.closetProfileAvatar ?? "",
-                    catwalkKitInitials: runwayMomentCreatorInitials,
-                    catwalkKitDiameter: 42,
-                    catwalkKitGradient: runwayMomentGradient
-                )
+                Button {
+                    chicFeedCreatorRouteAction()
+                } label: {
+                    CatwalkKitRemoteAvatar(
+                        catwalkKitAvatarURL: chicFeedCreator?.closetProfileAvatar ?? "",
+                        catwalkKitInitials: runwayMomentCreatorInitials,
+                        catwalkKitDiameter: 42,
+                        catwalkKitGradient: runwayMomentGradient
+                    )
+                }
+                .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(runwayMomentCreatorName)
@@ -340,8 +361,4 @@ private struct ChicFeedAssistantBanner: View {
             chicFeedAssistantRouteAction()
         }
     }
-}
-
-#Preview {
-    ChicFeedHomePage()
 }

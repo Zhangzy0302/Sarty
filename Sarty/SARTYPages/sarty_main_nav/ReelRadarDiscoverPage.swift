@@ -144,10 +144,15 @@ private struct ReelRadarVideoCard: View {
                         Button {
                             reelRadarMoreAction()
                         } label: {
-                            Image(systemName: "ellipsis")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 30, height: 30)
+                            ZStack {
+                                Color.clear
+                                Image(systemName: "ellipsis")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 30, height: 30)
+                            }
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -191,8 +196,4 @@ private struct ReelRadarVideoCard: View {
             }
         }
     }
-}
-
-#Preview {
-    ReelRadarDiscoverPage()
 }

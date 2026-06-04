@@ -48,15 +48,15 @@ extension WardrobeShareStorageManager {
 
     let users: [ClosetProfileUser] = [
       ClosetProfileUser(
-        closetProfileUserId: "0",
+        closetProfileUserId: "closet_user_0",
         closetProfileEmail: "sarty@gmail.com",
         closetProfilePassword: "123456",
         closetProfileUserName: "Knox",
         closetProfileAvatar:
           wardrobeShareAssetURL("SART_AVA_0.png"),
         closetProfileAboutMe: "Dress well, live well.",
-        closetProfileFollowing: ["4", "5"],
-        closetProfileFans: ["4", "5"],
+        closetProfileFollowing: ["closet_user_4", "closet_user_5"],
+        closetProfileFans: ["closet_user_4", "closet_user_5"],
         closetProfileBlacklist: [],
         closetProfileWalletBalance: 0,
         closetProfileLikePosts: [],
@@ -64,7 +64,7 @@ extension WardrobeShareStorageManager {
         closetProfileIsGuest: 0
       ),
       ClosetProfileUser(
-        closetProfileUserId: "1",
+        closetProfileUserId: "closet_user_1",
         closetProfileEmail: "asdc3beasd@gmail.com",
         closetProfilePassword: "5hdfbaff3",
         closetProfileUserName: "Moore",
@@ -72,7 +72,7 @@ extension WardrobeShareStorageManager {
           wardrobeShareAssetURL("SART_AVA_1.png"),
         closetProfileAboutMe: "Basic pieces, extraordinary matching.",
         closetProfileFollowing: [],
-        closetProfileFans: ["2"],
+        closetProfileFans: ["closet_user_2"],
         closetProfileBlacklist: [],
         closetProfileWalletBalance: 0,
         closetProfileLikePosts: [],
@@ -80,14 +80,14 @@ extension WardrobeShareStorageManager {
         closetProfileIsGuest: 0
       ),
       ClosetProfileUser(
-        closetProfileUserId: "2",
+        closetProfileUserId: "closet_user_2",
         closetProfileEmail: "assfbrab@gmail.com",
         closetProfilePassword: "4627535",
         closetProfileUserName: "Carlos",
         closetProfileAvatar:
           wardrobeShareAssetURL("SART_AVA_2.png"),
         closetProfileAboutMe: "Simple wear, great texture.",
-        closetProfileFollowing: ["1"],
+        closetProfileFollowing: ["closet_user_1"],
         closetProfileFans: [],
         closetProfileBlacklist: [],
         closetProfileWalletBalance: 0,
@@ -96,7 +96,7 @@ extension WardrobeShareStorageManager {
         closetProfileIsGuest: 0
       ),
       ClosetProfileUser(
-        closetProfileUserId: "3",
+        closetProfileUserId: "closet_user_3",
         closetProfileEmail: "brtwf452t2@gmail.com",
         closetProfilePassword: "78986278",
         closetProfileUserName: "Patti",
@@ -112,15 +112,15 @@ extension WardrobeShareStorageManager {
         closetProfileIsGuest: 0
       ),
       ClosetProfileUser(
-        closetProfileUserId: "4",
+        closetProfileUserId: "closet_user_4",
         closetProfileEmail: "nsVShjtd@gmail.com",
         closetProfilePassword: "hmrj4gfs4us",
         closetProfileUserName: "Icey",
         closetProfileAvatar:
           wardrobeShareAssetURL("SART_AVA_4.png"),
         closetProfileAboutMe: "Dress up for a better mood. ",
-        closetProfileFollowing: ["0"],
-        closetProfileFans: ["0"],
+        closetProfileFollowing: ["closet_user_0"],
+        closetProfileFans: ["closet_user_0"],
         closetProfileBlacklist: [],
         closetProfileWalletBalance: 0,
         closetProfileLikePosts: [],
@@ -128,15 +128,15 @@ extension WardrobeShareStorageManager {
         closetProfileIsGuest: 0
       ),
       ClosetProfileUser(
-        closetProfileUserId: "5",
+        closetProfileUserId: "closet_user_5",
         closetProfileEmail: "bdvsvnnhkuew@gmail.com",
         closetProfilePassword: "bd4h7eag",
         closetProfileUserName: "Shelley",
         closetProfileAvatar:
           wardrobeShareAssetURL("SART_AVA_5.png"),
         closetProfileAboutMe: "Share daily outfits, find beauty in ordinary life.",
-        closetProfileFollowing: ["0"],
-        closetProfileFans: ["0"],
+        closetProfileFollowing: ["closet_user_0"],
+        closetProfileFans: ["closet_user_0"],
         closetProfileBlacklist: [],
         closetProfileWalletBalance: 0,
         closetProfileLikePosts: [],
@@ -218,8 +218,8 @@ extension WardrobeShareStorageManager {
 
     let lookbookPostWorks: [LookbookPostVideo] = [
       LookbookPostVideo(
-        lookbookPostWorkId: "0",
-        lookbookPostCreatorId: "1",
+        lookbookPostWorkId: "lookbook_post_0",
+        lookbookPostCreatorId: "closet_user_1",
         lookbookPostType: 1,
         lookbookPostTextContent:
           "Daily men’s style",
@@ -231,8 +231,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 864,
         lookbookPostCommentCount: 2),
       LookbookPostVideo(
-        lookbookPostWorkId: "1",
-        lookbookPostCreatorId: "2",
+        lookbookPostWorkId: "lookbook_post_1",
+        lookbookPostCreatorId: "closet_user_2",
         lookbookPostType: 1,
         lookbookPostTextContent:
           "Classic clean fit, never goes wrong.",
@@ -244,8 +244,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 2312,
         lookbookPostCommentCount: 1),
       LookbookPostVideo(
-        lookbookPostWorkId: "2",
-        lookbookPostCreatorId: "0",
+        lookbookPostWorkId: "lookbook_post_2",
+        lookbookPostCreatorId: "closet_user_0",
         lookbookPostType: 1,
         lookbookPostTextContent: "Casual look for everyday wear.",
         lookbookPostTitleType: 0,
@@ -256,8 +256,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 634,
         lookbookPostCommentCount: 1),
       LookbookPostVideo(
-        lookbookPostWorkId: "3",
-        lookbookPostCreatorId: "3",
+        lookbookPostWorkId: "lookbook_post_3",
+        lookbookPostCreatorId: "closet_user_3",
         lookbookPostType: 1,
         lookbookPostTextContent: "Style has no rules.",
         lookbookPostTitleType: 1,
@@ -268,8 +268,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 2624,
         lookbookPostCommentCount: 1),
       LookbookPostVideo(
-        lookbookPostWorkId: "4",
-        lookbookPostCreatorId: "4",
+        lookbookPostWorkId: "lookbook_post_4",
+        lookbookPostCreatorId: "closet_user_4",
         lookbookPostType: 1,
         lookbookPostTextContent: "Copy my look if you like. ",
         lookbookPostTitleType: 2,
@@ -280,8 +280,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 1647,
         lookbookPostCommentCount: 0),
       LookbookPostVideo(
-        lookbookPostWorkId: "5",
-        lookbookPostCreatorId: "5",
+        lookbookPostWorkId: "lookbook_post_5",
+        lookbookPostCreatorId: "closet_user_5",
         lookbookPostType: 1,
         lookbookPostTextContent: "Basic pieces can also create amazing looks.",
         lookbookPostTitleType: 2,
@@ -293,9 +293,9 @@ extension WardrobeShareStorageManager {
         lookbookPostCommentCount: 0),
       //image
       LookbookPostVideo(
-        lookbookPostWorkId: "6",
-        lookbookPostCreatorId: "2",
-        lookbookPostType: 1,
+        lookbookPostWorkId: "lookbook_post_6",
+        lookbookPostCreatorId: "closet_user_2",
+        lookbookPostType: 0,
         lookbookPostTextContent: "Minimalist outfit vibe.",
         lookbookPostTitleType: 0,
         lookbookPostVideoUrl:
@@ -306,8 +306,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 786,
         lookbookPostCommentCount: 0),
       LookbookPostVideo(
-        lookbookPostWorkId: "7",
-        lookbookPostCreatorId: "2",
+        lookbookPostWorkId: "lookbook_post_7",
+        lookbookPostCreatorId: "closet_user_2",
         lookbookPostType: 0,
         lookbookPostTextContent: "Comfort meets style. ",
         lookbookPostTitleType: 0,
@@ -320,8 +320,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 186,
         lookbookPostCommentCount: 1),
       LookbookPostVideo(
-        lookbookPostWorkId: "8",
-        lookbookPostCreatorId: "1",
+        lookbookPostWorkId: "lookbook_post_8",
+        lookbookPostCreatorId: "closet_user_1",
         lookbookPostType: 0,
         lookbookPostTextContent: "Today's outfit.",
         lookbookPostTitleType: 1,
@@ -334,8 +334,8 @@ extension WardrobeShareStorageManager {
         lookbookPostLikeCount: 734,
         lookbookPostCommentCount: 2),
       LookbookPostVideo(
-        lookbookPostWorkId: "9",
-        lookbookPostCreatorId: "0",
+        lookbookPostWorkId: "lookbook_post_9",
+        lookbookPostCreatorId: "closet_user_0",
         lookbookPostType: 0,
         lookbookPostTextContent: "Keep it simple but stylish in daily wear.",
         lookbookPostTitleType: 0,
@@ -461,49 +461,49 @@ extension WardrobeShareStorageManager {
       
       let socialThreadCommentList: [SocialThreadComment] = [
         SocialThreadComment(
-            socialThreadCommentId: "0",
-            socialThreadCommentWorkId: "0",
-            socialThreadCommentUserId: "2",
+            socialThreadCommentId: "thread_comment_0",
+            socialThreadCommentWorkId: "lookbook_post_0",
+            socialThreadCommentUserId: "closet_user_2",
             socialThreadCommentText: "Super relaxed vibe! "),
         SocialThreadComment(
-            socialThreadCommentId: "1",
-            socialThreadCommentWorkId: "1",
-            socialThreadCommentUserId: "5",
+            socialThreadCommentId: "thread_comment_1",
+            socialThreadCommentWorkId: "lookbook_post_1",
+            socialThreadCommentUserId: "closet_user_5",
             socialThreadCommentText: "Easy and fashionable. "),
         SocialThreadComment(
-            socialThreadCommentId: "2",
-            socialThreadCommentWorkId: "2",
-            socialThreadCommentUserId: "3",
+            socialThreadCommentId: "thread_comment_2",
+            socialThreadCommentWorkId: "lookbook_post_2",
+            socialThreadCommentUserId: "closet_user_3",
             socialThreadCommentText: "Comfort ranks first."),
         SocialThreadComment(
-            socialThreadCommentId: "3",
-            socialThreadCommentWorkId: "3",
-            socialThreadCommentUserId: "2",
+            socialThreadCommentId: "thread_comment_3",
+            socialThreadCommentWorkId: "lookbook_post_3",
+            socialThreadCommentUserId: "closet_user_2",
             socialThreadCommentText: "Super cool look!"),
         SocialThreadComment(
-            socialThreadCommentId: "4",
-            socialThreadCommentWorkId: "1",
-            socialThreadCommentUserId: "2",
+            socialThreadCommentId: "thread_comment_4",
+            socialThreadCommentWorkId: "lookbook_post_1",
+            socialThreadCommentUserId: "closet_user_2",
             socialThreadCommentText: "Love it"),
         SocialThreadComment(
-            socialThreadCommentId: "5",
-            socialThreadCommentWorkId: "6",
-            socialThreadCommentUserId: "4",
+            socialThreadCommentId: "thread_comment_5",
+            socialThreadCommentWorkId: "lookbook_post_6",
+            socialThreadCommentUserId: "closet_user_4",
             socialThreadCommentText: "Dressing well is also a way to love life. "),
         SocialThreadComment(
-            socialThreadCommentId: "6",
-            socialThreadCommentWorkId: "7",
-            socialThreadCommentUserId: "3",
+            socialThreadCommentId: "thread_comment_6",
+            socialThreadCommentWorkId: "lookbook_post_7",
+            socialThreadCommentUserId: "closet_user_3",
             socialThreadCommentText: "Looks great! "),
         SocialThreadComment(
-            socialThreadCommentId: "7",
-            socialThreadCommentWorkId: "7",
-            socialThreadCommentUserId: "2",
+            socialThreadCommentId: "thread_comment_7",
+            socialThreadCommentWorkId: "lookbook_post_7",
+            socialThreadCommentUserId: "closet_user_2",
             socialThreadCommentText: "This style suits you so well."),
         SocialThreadComment(
-            socialThreadCommentId: "8",
-            socialThreadCommentWorkId: "8",
-            socialThreadCommentUserId: "1",
+            socialThreadCommentId: "thread_comment_8",
+            socialThreadCommentWorkId: "lookbook_post_8",
+            socialThreadCommentUserId: "closet_user_1",
             socialThreadCommentText: "Ordinary clothes become special here."),
       ]
     save(socialThreadCommentList, forKey: Keys.socialThreadComments)

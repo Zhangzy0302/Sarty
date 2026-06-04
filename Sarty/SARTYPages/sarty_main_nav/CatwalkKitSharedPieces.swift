@@ -65,16 +65,7 @@ struct CatwalkKitPhotoTile: View {
     var body: some View {
         ZStack {
             LinearGradient(colors: catwalkKitGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-
-            Circle()
-                .fill(Color.white.opacity(0.22))
-                .frame(width: 92, height: 92)
-                .offset(x: 70, y: -72)
-
-            Circle()
-                .fill(Color.white.opacity(0.12))
-                .frame(width: 120, height: 120)
-                .offset(x: -78, y: 82)
+                .opacity(0.5)
 
             if let catwalkKitOverlaySymbol {
                 Image(systemName: catwalkKitOverlaySymbol)
@@ -102,12 +93,60 @@ struct CatwalkKitRemotePhotoTile: View {
                 catwalkKitSource,
                 runwayGalleryContentMode: .fill,
                 runwayGalleryPlaceholder: {
-                    Color.clear
+                    CatwalkKitShimmerFlash()
                 }
             )
         }
         .clipped()
         .clipShape(RoundedRectangle(cornerRadius: catwalkKitCornerRadius, style: .continuous))
+    }
+}
+
+struct CatwalkKitShimmerFlash: View {
+    @State private var catwalkKitMovesHighlight = false
+    @State private var catwalkKitSoftPulse = false
+
+    var body: some View {
+        GeometryReader { catwalkKitProxy in
+            let catwalkKitWidth = max(catwalkKitProxy.size.width, 1)
+            let catwalkKitHeight = max(catwalkKitProxy.size.height, 1)
+
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(catwalkKitSoftPulse ? 0.10 : 0.05),
+                        Color.white.opacity(catwalkKitSoftPulse ? 0.04 : 0.09)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0),
+                        Color.white.opacity(0.06),
+                        Color.white.opacity(0.14),
+                        Color.white.opacity(0.06),
+                        Color.white.opacity(0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: catwalkKitWidth * 0.72, height: catwalkKitHeight * 1.45)
+                .blur(radius: 12)
+                .rotationEffect(.degrees(12))
+                .offset(x: catwalkKitMovesHighlight ? catwalkKitWidth * 1.35 : -catwalkKitWidth * 1.35)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.45).repeatForever(autoreverses: false)) {
+                    catwalkKitMovesHighlight = true
+                }
+                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                    catwalkKitSoftPulse = true
+                }
+            }
+        }
+        .allowsHitTesting(false)
     }
 }
 

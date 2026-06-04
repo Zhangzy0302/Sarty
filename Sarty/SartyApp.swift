@@ -31,10 +31,15 @@ private struct FashionGateRootPage: View {
     @AppStorage("wardrobeShareCurrentUserId") private var runwayWalkCurrentUserId = ""
 
     var body: some View {
-        if runwayWalkCurrentUserId.isEmpty {
-            StyleCircleGuidePage()
-        } else {
-            VogueLaneRootNavPage()
+        Group {
+            if runwayWalkCurrentUserId.isEmpty {
+                StyleCircleGuidePage()
+            } else {
+                VogueLaneRootNavPage()
+            }
+        }
+        .onAppear {
+            SilkBridgeWebCanvas.silkBridgePreloadRootPageIfNeeded()
         }
     }
 }

@@ -61,10 +61,3 @@ struct AtelierGuestLoginLimitDialog: View {
         .transition(.opacity)
     }
 }
-
-#Preview {
-    AtelierGuestLoginLimitDialog(
-        atelierGuestLoginAction: {},
-        atelierGuestCancelAction: {}
-    )
-}

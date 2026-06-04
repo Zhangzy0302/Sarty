@@ -4,6 +4,7 @@ import SwiftUI
 struct ThreadTalkMessagePage: View {
     let threadTalkChatRouteAction: (String) -> Void
     @StateObject private var threadTalkChatViewModel = ClosetChatViewModel()
+    @State private var threadTalkCurrentUserId = ""
 
     init(threadTalkChatRouteAction: @escaping (String) -> Void = { _ in }) {
         self.threadTalkChatRouteAction = threadTalkChatRouteAction
@@ -23,11 +24,13 @@ struct ThreadTalkMessagePage: View {
                     VStack(spacing: 10) {
                         ForEach(threadTalkChatViewModel.myChatRooms) { threadTalkRoom in
                             Button {
+                                threadTalkMarkUnreadAsReadIfNeeded(threadTalkRoom)
                                 threadTalkChatRouteAction(threadTalkRoom.closetChatRoomId)
                             } label: {
                                 ThreadTalkChatRow(
                                     threadTalkRoom: threadTalkRoom,
-                                    threadTalkUser: threadTalkChatViewModel.getClosetChatUserInfo(chatRoomId: threadTalkRoom.closetChatRoomId)
+                                    threadTalkUser: threadTalkChatViewModel.getClosetChatUserInfo(chatRoomId: threadTalkRoom.closetChatRoomId),
+                                    threadTalkCurrentUserId: threadTalkCurrentUserId
                                 )
                             }
                             .buttonStyle(.plain)
@@ -48,14 +51,31 @@ struct ThreadTalkMessagePage: View {
     }
 
     private func threadTalkRefreshChatRooms() {
+        threadTalkCurrentUserId = WardrobeShareStorageManager.shared.wardrobeShareGetCurrentUserId()
         threadTalkChatViewModel.myChatRooms = threadTalkChatViewModel.getMyClosetChatRoomsNotBlock()
             .sorted { $0.closetChatLastSendTime > $1.closetChatLastSendTime }
+    }
+
+    private func threadTalkMarkUnreadAsReadIfNeeded(_ threadTalkRoom: ClosetChatRoom) {
+        guard threadTalkRoom.closetChatUnreadCount > 0,
+              threadTalkRoom.closetChatLastSendUser != threadTalkCurrentUserId else {
+            return
+        }
+
+        WardrobeShareStorageManager.shared.wardrobeShareUpdateChatRoom(roomId: threadTalkRoom.closetChatRoomId) { threadTalkStoredRoom in
+            var threadTalkReadRoom = threadTalkStoredRoom
+            threadTalkReadRoom.closetChatUnreadCount = 0
+            return threadTalkReadRoom
+        }
+
+        threadTalkRefreshChatRooms()
     }
 }
 
 private struct ThreadTalkChatRow: View {
     let threadTalkRoom: ClosetChatRoom
     let threadTalkUser: ClosetProfileUser?
+    let threadTalkCurrentUserId: String
 
     private var threadTalkName: String {
         CatwalkKitProfileText.displayName(threadTalkUser)
@@ -76,6 +96,11 @@ private struct ThreadTalkChatRow: View {
 
     private var threadTalkGradient: [Color] {
         CatwalkKitPalette.pick(seed: threadTalkUser?.closetProfileUserId ?? threadTalkRoom.closetChatRoomId)
+    }
+
+    private var threadTalkShouldShowUnreadBadge: Bool {
+        threadTalkRoom.closetChatUnreadCount > 0
+        && threadTalkRoom.closetChatLastSendUser != threadTalkCurrentUserId
     }
 
     var body: some View {
@@ -107,7 +132,7 @@ private struct ThreadTalkChatRow: View {
                     .foregroundStyle(Color.black.opacity(0.45))
                     .lineLimit(1)
 
-                if threadTalkRoom.closetChatUnreadCount > 0 {
+                if threadTalkShouldShowUnreadBadge {
                     Text("\(threadTalkRoom.closetChatUnreadCount)")
                         .font(.system(size: 10, weight: .heavy))
                         .foregroundStyle(.white)
@@ -137,8 +162,4 @@ private enum ThreadTalkTimeFormatter {
 
         return threadTalkFormatter.string(from: threadTalkDate)
     }
-}
-
-#Preview {
-    ThreadTalkMessagePage()
 }

@@ -95,26 +95,27 @@ private struct AtelierProfileHeader: View {
                 VStack(alignment: .leading, spacing: 27) {
                     HStack {
                         
-                        
-
                         Button {
                             atelierProfileWebRouteAction("edit")
                         } label: {
-                            HStack{
+                            HStack(spacing: 4) {
                                 Text(atelierProfileDisplayName)
                                     .font(.system(size: 20, weight: .heavy))
                                     .foregroundStyle(LookbookShareColorStyle.styleCircleInk)
                                     .lineLimit(1)
-                                    .padding(.leading, 99)
+                                    .truncationMode(.tail)
+                                    .layoutPriority(1)
                                 Image("SARTY_icon_edit")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 14, height: 14)
                             }
+                            .padding(.leading, 87)
                         }
                         .buttonStyle(.plain)
+                        .layoutPriority(1)
 
-                        Spacer()
+                        Spacer(minLength: 8)
 
                         Button {
                             atelierProfileWebRouteAction("setting")
@@ -134,6 +135,7 @@ private struct AtelierProfileHeader: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(.plain)
+                        .fixedSize(horizontal: true, vertical: false)
                     }
 
                     HStack(spacing: 6) {
@@ -265,6 +267,10 @@ private struct AtelierProfileWorkCard: View {
         CatwalkKitNumberFormatter.compact(atelierProfilePost.lookbookPostLikeCount)
     }
 
+    private var atelierProfileIsLiked: Bool {
+        atelierProfileUser?.closetProfileLikePosts.contains(atelierProfilePost.lookbookPostWorkId) == true
+    }
+
     private var atelierProfileGradient: [Color] {
         CatwalkKitPalette.pick(seed: atelierProfilePost.lookbookPostWorkId, from: CatwalkKitPalette.catwalkKitPostPalettes)
     }
@@ -321,7 +327,7 @@ private struct AtelierProfileWorkCard: View {
                     Spacer()
 
                     HStack(spacing: 4) {
-                        Image("SARTY_like")
+                        Image(atelierProfileIsLiked ? "SARTY_like" : "SARTY_like_no")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 22, height: 22)
@@ -390,8 +396,4 @@ private struct AtelierProfileWorkMedia: View {
             }
         }
     }
-}
-
-#Preview {
-    AtelierProfileMinePage()
 }

@@ -346,7 +346,3 @@ private struct StyleCircleLinkText: View {
             }
     }
 }
-
-#Preview {
-    StyleCircleGuidePage()
-}

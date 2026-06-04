@@ -20,11 +20,17 @@ struct VogueLaneRootNavPage: View {
                     chicFeedPostDetailRouteAction: { vogueLanePostId in
                         vogueLaneOpenRoute(.picPostDetails(vogueLanePostId))
                     },
+                    chicFeedCreatorRouteAction: { vogueLaneUserId in
+                        vogueLaneOpenRoute(.profileAction("otherHome/\(vogueLaneUserId)"))
+                    },
                     chicFeedMoreUserAction: { vogueLaneUserId, vogueLaneShieldAction in
                         vogueLaneShowReportShieldDialog(
                             userId: vogueLaneUserId,
                             shieldAction: vogueLaneShieldAction
                         )
+                    },
+                    chicFeedGuestLimitAction: {
+                        vogueLaneShowGuestLimitDialog()
                     }
                 )
                 .vogueLaneTabVisible(vogueLaneSelectedTab == .home)
@@ -99,6 +105,7 @@ struct VogueLaneRootNavPage: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationBarHidden(true)
         .onAppear {
+            SilkBridgeWebCanvas.silkBridgePreloadRootPageIfNeeded()
             vogueLaneUserViewModel.loadLoginClosetProfileUser()
         }
     }
@@ -121,6 +128,7 @@ private extension VogueLaneRootNavPage {
             return
         }
 
+        SilkBridgeWebCanvas.silkBridgePreloadRootPageIfNeeded()
         vogueLaneActiveRoute = route
     }
 
@@ -307,8 +315,4 @@ private struct VogueLaneBottomNavBar: View {
         )
         
     }
-}
-
-#Preview {
-    VogueLaneRootNavPage()
 }
