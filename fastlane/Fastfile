@@ -137,7 +137,7 @@ platform :ios do
     update_code_signing_settings(
       path: "Sarty.xcodeproj",
       use_automatic_signing: false,
-      team_id: "WLLMWYMP66",
+      team_id: "C6YBQGH9WL",
       targets: ["Sarty"],
       code_sign_identity: "Apple Distribution",
       profile_name: "match AppStore com.sartianparye.Sarty",
