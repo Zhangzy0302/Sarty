@@ -38,7 +38,19 @@ jobs:
       - run:
           name: Install Ruby 3.3.6 via rbenv
           command: |
-            brew install rbenv ruby-build
+            unset HOMEBREW_NO_AUTO_UPDATE
+            brew update
+
+            brew list rbenv >/dev/null 2>&1 || brew install rbenv
+
+            if brew list ruby-build >/dev/null 2>&1; then
+              brew upgrade ruby-build || true
+            else
+              brew install ruby-build
+            fi
+
+            brew reinstall ca-certificates || true
+
             eval "$(rbenv init -)"
             rbenv install 3.3.6 --skip-existing
             rbenv global 3.3.6
