@@ -60,6 +60,20 @@ enum RunwayVaultRechargeCenter {
         }
     }
 
+    static func runwayVaultPurchaseBPackage(
+        productId runwayVaultProductId: String,
+        orderCode runwayVaultOrderCode: String
+    ) async -> RunwayVaultRechargeResult {
+        await withCheckedContinuation { runwayVaultContinuation in
+            RunwayVaultStoreKitOneCenter.shared.runwayVaultPurchaseBPackage(
+                productId: runwayVaultProductId,
+                orderCode: runwayVaultOrderCode
+            ) { runwayVaultResult in
+                runwayVaultContinuation.resume(returning: runwayVaultResult)
+            }
+        }
+    }
+
     static func runwayVaultSilentlyPrepareStoreKitProducts() {
         RunwayVaultStoreKitOneCenter.shared.runwayVaultSilentlyPrepareProducts()
     }
@@ -71,6 +85,7 @@ final class RunwayVaultStoreKitOneCenter: NSObject {
     private var runwayVaultProductRequest: SKProductsRequest?
     private var runwayVaultProductCache: [String: SKProduct] = [:]
     private var runwayVaultPendingUserIds: [String: String] = [:]
+    private var runwayVaultPendingOrderCodes: [String: String] = [:]
     private var runwayVaultPendingCompletions: [String: (RunwayVaultRechargeResult) -> Void] = [:]
     private var runwayVaultRetryCount = 0
     private var runwayVaultTotalRequestCount = 0
@@ -139,6 +154,36 @@ final class RunwayVaultStoreKitOneCenter: NSObject {
         _ = runwayVaultPack
     }
 
+    func runwayVaultPurchaseBPackage(
+        productId runwayVaultProductId: String,
+        orderCode runwayVaultOrderCode: String,
+        completion runwayVaultCompletion: @escaping (RunwayVaultRechargeResult) -> Void
+    ) {
+        guard let runwayVaultPack = runwayVaultPackage(for: runwayVaultProductId) else {
+            runwayVaultCompletion(.failed("Payment package unavailable"))
+            return
+        }
+
+        guard SKPaymentQueue.canMakePayments() else {
+            runwayVaultCompletion(.failed("Payment is unavailable"))
+            return
+        }
+
+        runwayVaultPendingOrderCodes[runwayVaultProductId] = runwayVaultOrderCode
+        runwayVaultPendingCompletions[runwayVaultProductId] = runwayVaultCompletion
+
+        guard let runwayVaultCachedProduct = runwayVaultProductCache[runwayVaultProductId] else {
+            runwayVaultPendingOrderCodes.removeValue(forKey: runwayVaultProductId)
+            runwayVaultPendingCompletions.removeValue(forKey: runwayVaultProductId)
+            runwayVaultSilentlyPrepareProducts()
+            runwayVaultCompletion(.failed("Products are loading"))
+            return
+        }
+
+        runwayVaultStartPayment(product: runwayVaultCachedProduct)
+        _ = runwayVaultPack
+    }
+
     private func runwayVaultPackage(for runwayVaultProductId: String) -> RunwayVaultRechargePack? {
         RunwayVaultRechargeCenter.runwayVaultPackage(for: runwayVaultProductId)
     }
@@ -175,10 +220,65 @@ final class RunwayVaultStoreKitOneCenter: NSObject {
     ) {
         let runwayVaultCompletion = runwayVaultPendingCompletions.removeValue(forKey: runwayVaultProductId)
         runwayVaultPendingUserIds.removeValue(forKey: runwayVaultProductId)
+        runwayVaultPendingOrderCodes.removeValue(forKey: runwayVaultProductId)
 
         DispatchQueue.main.async {
             RunwaySignalHUDCenter.shared.runwaySignalHideLoading()
             runwayVaultCompletion?(runwayVaultResult)
+        }
+    }
+
+    private func runwayVaultReceiptDataString() -> String {
+        guard let runwayVaultReceiptURL = Bundle.main.appStoreReceiptURL,
+              let runwayVaultReceiptData = try? Data(contentsOf: runwayVaultReceiptURL) else {
+            return ""
+        }
+
+        return runwayVaultReceiptData.base64EncodedString()
+    }
+
+    private func runwayVaultHandleBPackagePurchasedTransaction(
+        _ runwayVaultTransaction: SKPaymentTransaction,
+        queue runwayVaultQueue: SKPaymentQueue
+    ) {
+        let runwayVaultProductId = runwayVaultTransaction.payment.productIdentifier
+
+        guard let runwayVaultPack = runwayVaultPackage(for: runwayVaultProductId) else {
+            runwayVaultQueue.finishTransaction(runwayVaultTransaction)
+            runwayVaultComplete(productId: runwayVaultProductId, result: .failed("Payment package unavailable"))
+            return
+        }
+
+        let runwayVaultPurchaseID = runwayVaultTransaction.transactionIdentifier ?? ""
+        let runwayVaultVerificationData = runwayVaultReceiptDataString()
+        let runwayVaultOrderCode = runwayVaultPendingOrderCodes[runwayVaultProductId] ?? closetCharmUsersOrderCode
+
+        Task {
+            do {
+                let runwayVaultDidVerify = try await TrendThreadApiCall().trendThreadPayCall(
+                    purchaseID: runwayVaultPurchaseID,
+                    serverVerificationData: runwayVaultVerificationData,
+                    orderCode: runwayVaultOrderCode
+                )
+
+                await MainActor.run {
+                    runwayVaultQueue.finishTransaction(runwayVaultTransaction)
+
+                    if runwayVaultDidVerify {
+                        RunwayRippleAdjustManager.shared.runwayRippleTrackPurchase(
+                            dollar: runwayVaultPack.runwayVaultRunwayPrice
+                        )
+                        runwayVaultComplete(productId: runwayVaultProductId, result: .success)
+                    } else {
+                        runwayVaultComplete(productId: runwayVaultProductId, result: .failed("Purchase unverified"))
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    runwayVaultQueue.finishTransaction(runwayVaultTransaction)
+                    runwayVaultComplete(productId: runwayVaultProductId, result: .failed(error.localizedDescription))
+                }
+            }
         }
     }
 
@@ -230,9 +330,21 @@ extension RunwayVaultStoreKitOneCenter: SKPaymentTransactionObserver {
 
             switch runwayVaultTransaction.transactionState {
             case .purchased:
-                let runwayVaultResult = runwayVaultCreditUser(for: runwayVaultProductId)
-                queue.finishTransaction(runwayVaultTransaction)
-                runwayVaultComplete(productId: runwayVaultProductId, result: runwayVaultResult)
+                if ClosetCharmAppStorage.closetCharmIsB {
+                    runwayVaultHandleBPackagePurchasedTransaction(runwayVaultTransaction, queue: queue)
+                } else {
+                    let runwayVaultResult = runwayVaultCreditUser(for: runwayVaultProductId)
+                    queue.finishTransaction(runwayVaultTransaction)
+
+                    if case .success = runwayVaultResult,
+                       let runwayVaultPack = runwayVaultPackage(for: runwayVaultProductId) {
+                        RunwayRippleAdjustManager.shared.runwayRippleTrackPurchase(
+                            dollar: runwayVaultPack.runwayVaultRunwayPrice
+                        )
+                    }
+
+                    runwayVaultComplete(productId: runwayVaultProductId, result: runwayVaultResult)
+                }
 
             case .restored:
                 queue.finishTransaction(runwayVaultTransaction)

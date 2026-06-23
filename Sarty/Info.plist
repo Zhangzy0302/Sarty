@@ -16,8 +16,49 @@
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb2544539319344648</string>
+				<string>sarty</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FacebookAppID</key>
+	<string>2544539319344648</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookClientToken</key>
+	<string>e22813ac775881321726b653d490543c</string>
+	<key>FacebookDisplayName</key>
+	<string>Sarty</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>whatsapp</string>
+		<string>instagram</string>
+		<string>fb</string>
+		<string>tiktok</string>
+		<string>comgooglemaps</string>
+		<string>tweetie</string>
+		<string>wechat</string>
+		<string>alipay</string>
+		<string>mqq</string>
+		<string>itms-apps</string>
+		<string>itms-services</string>
+		<string>squarecash</string>
+		<string>cashme</string>
+		<string>upi</string>
+		<string>phonepe</string>
+		<string>paytmmp</string>
+		<string>gpay</string>
+		<string>com.amazon.mobile.shopping</string>
+		<string>mobikwik</string>
+		<string>freecharge</string>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -48,6 +89,10 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -61,5 +106,14 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>UNUserNotificationCenter</key>
+	<dict>
+		<key>UNAuthorizationOptions</key>
+		<array>
+			<string>alert</string>
+		</array>
+	</dict>
 </dict>
 </plist>

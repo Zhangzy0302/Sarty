@@ -13,76 +13,22 @@ struct StyleCircleGuidePage: View {
     @State private var styleCircleAuthInitialMode: StyleCircleAuthMode = .signIn
     @State private var styleCirclePolicyRoute: StyleCirclePolicyRoute?
     @State private var runwayMomentGuideIsPreparingVisitorLogin = false
+    @StateObject private var vogueVistaInitViewModel = VogueVistaInitViewModel()
+    @State private var styleCircleDidStartVogueVistaInit = false
+    @State private var styleCircleBWebRoute: StyleCircleBWebRoute?
+    @State private var runwayMomentGuideIsPreparingQuickLogin = false
 
     var body: some View {
         ZStack {
-            GeometryReader { geo in
-                ZStack(alignment: .bottom){
-                    Image("SARTY_guide_bg")
-                        .resizable()
-                        .scaledToFill()
-                        .clipped()
-                        .ignoresSafeArea()
-                    LinearGradient(colors: [
-                        LookbookShareColorStyle.lookbookSoftCanvas,
-                        LookbookShareColorStyle.lookbookSoftCanvas.opacity(0)
-                    ], startPoint: .bottom, endPoint: .top).frame(height: geo.size.height/2).ignoresSafeArea()
-                }
-            }
-            
-            
+            styleCircleGuideBackground
 
-            VStack(spacing: 0) {
-                Spacer()
-
-                Image("SARTY_app_logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 98, height: 98)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
-                    .padding(.bottom, 28)
-
-                VStack(spacing: 18) {
-                    StyleCircleGuideButton(
-                        lookbookShareTitle: "Login by email",
-                        lookbookShareBackground: styleCirclePrimaryYellow,
-                        lookbookShareForeground: .black,
-                        lookbookShareAction: {
-                            styleCircleHandleGuideAction(.emailLogin)
-                        }
-                    )
-                    .disabled(runwayMomentGuideIsPreparingVisitorLogin)
-
-                    StyleCircleGuideButton(
-                        lookbookShareTitle: "I'm new",
-                        lookbookShareBackground: styleCircleSoftWhite,
-                        lookbookShareForeground: .black,
-                        lookbookShareAction: {
-                            styleCircleHandleGuideAction(.visitorLogin)
-                        }
-                    )
-                    .disabled(runwayMomentGuideIsPreparingVisitorLogin)
-                }
-                .padding(.horizontal, lookbookShareHorizontalPadding)
-                .padding(.bottom, 26)
-
-                StyleCircleSignUpLine(
-                    runwayMomentSignUpAction: {
-                        styleCircleOpenAuthPage(.signUp)
-                    }
-                )
-                    .padding(.bottom, 22)
-
-                StyleCircleAgreementLine(
-                    styleCircleIsAgreed: $styleCircleHasUserAgreement,
-                    streetStyleUserAgreementAction: {
-                        styleCirclePolicyRoute = StyleCirclePolicyRoute(streetStyleWebPath: "userAgreement")
-                    },
-                    streetStylePrivacyPolicyAction: {
-                        styleCirclePolicyRoute = StyleCirclePolicyRoute(streetStyleWebPath: "privacyPolicy")
-                    }
-                )
-                    .padding(.horizontal, 20)
+            switch vogueVistaInitViewModel.vogueVistaStatus {
+            case .vogueVistaLoading:
+                StyleCircleGuideLoadingView()
+            case .vogueVistaA:
+                styleCircleAPackageContent
+            case .vogueVistaB:
+                styleCircleBPackageContent
             }
 
             if styleCircleShowsEULA {
@@ -145,9 +91,25 @@ struct StyleCircleGuidePage: View {
                 }
             )
             .hidden()
+
+            NavigationLink(
+                isActive: styleCircleBWebRouteBinding,
+                destination: {
+                    if let styleCircleBWebRoute {
+                        RunwayVaultBWebScene(runwayVaultBWebUrlString: styleCircleBWebRoute.styleCircleURLString)
+                            .navigationBarHidden(true)
+                            .runwaySignalHUDOverlay()
+                    }
+                },
+                label: {
+                    EmptyView()
+                }
+            )
+            .hidden()
         }
         .onAppear {
             styleCircleHasUserAgreement = ClosetConsentState.closetConsentAgree
+            styleCircleStartVogueVistaInitIfNeeded()
         }
         .navigationBarHidden(true)
     }
@@ -159,6 +121,108 @@ private enum StyleCircleGuideAction {
 }
 
 private extension StyleCircleGuidePage {
+    var styleCircleGuideBackground: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .bottom) {
+                Image("SARTY_guide_bg")
+                    .resizable()
+                    .scaledToFill()
+                    .clipped()
+                    .ignoresSafeArea()
+                LinearGradient(
+                    colors: [
+                        LookbookShareColorStyle.lookbookSoftCanvas,
+                        LookbookShareColorStyle.lookbookSoftCanvas.opacity(0)
+                    ],
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: geo.size.height / 2)
+                .ignoresSafeArea()
+            }
+        }
+    }
+
+    var styleCircleAPackageContent: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            styleCircleLogo
+                .padding(.bottom, 28)
+
+            VStack(spacing: 18) {
+                StyleCircleGuideButton(
+                    lookbookShareTitle: "Login by email",
+                    lookbookShareBackground: styleCirclePrimaryYellow,
+                    lookbookShareForeground: .black,
+                    lookbookShareAction: {
+                        styleCircleHandleGuideAction(.emailLogin)
+                    }
+                )
+                .disabled(runwayMomentGuideIsPreparingVisitorLogin)
+
+                StyleCircleGuideButton(
+                    lookbookShareTitle: "I'm new",
+                    lookbookShareBackground: styleCircleSoftWhite,
+                    lookbookShareForeground: .black,
+                    lookbookShareAction: {
+                        styleCircleHandleGuideAction(.visitorLogin)
+                    }
+                )
+                .disabled(runwayMomentGuideIsPreparingVisitorLogin)
+            }
+            .padding(.horizontal, lookbookShareHorizontalPadding)
+            .padding(.bottom, 26)
+
+            StyleCircleSignUpLine(
+                runwayMomentSignUpAction: {
+                    styleCircleOpenAuthPage(.signUp)
+                }
+            )
+            .padding(.bottom, 22)
+
+            StyleCircleAgreementLine(
+                styleCircleIsAgreed: $styleCircleHasUserAgreement,
+                streetStyleUserAgreementAction: {
+                    styleCirclePolicyRoute = StyleCirclePolicyRoute(streetStyleWebPath: "userAgreement")
+                },
+                streetStylePrivacyPolicyAction: {
+                    styleCirclePolicyRoute = StyleCirclePolicyRoute(streetStyleWebPath: "privacyPolicy")
+                }
+            )
+            .padding(.horizontal, 20)
+        }
+    }
+
+    var styleCircleBPackageContent: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            styleCircleLogo
+                .padding(.bottom, 32)
+
+            StyleCircleGuideButton(
+                lookbookShareTitle: runwayMomentGuideIsPreparingQuickLogin ? "Logging in..." : "Quick Login",
+                lookbookShareBackground: styleCirclePrimaryYellow,
+                lookbookShareForeground: .black,
+                lookbookShareAction: {
+                    styleCircleHandleQuickLogin()
+                }
+            )
+            .disabled(runwayMomentGuideIsPreparingQuickLogin)
+            .padding(.horizontal, lookbookShareHorizontalPadding)
+            .padding(.bottom, 56)
+        }
+    }
+
+    var styleCircleLogo: some View {
+        Image("SARTY_app_logo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 98, height: 98)
+            .clipShape(RoundedRectangle(cornerRadius: 28))
+    }
+
     var styleCirclePolicyRouteBinding: Binding<Bool> {
         Binding(
             get: {
@@ -167,6 +231,19 @@ private extension StyleCircleGuidePage {
             set: { styleCircleIsActive in
                 if !styleCircleIsActive {
                     styleCirclePolicyRoute = nil
+                }
+            }
+        )
+    }
+
+    var styleCircleBWebRouteBinding: Binding<Bool> {
+        Binding(
+            get: {
+                styleCircleBWebRoute != nil
+            },
+            set: { styleCircleIsActive in
+                if !styleCircleIsActive {
+                    styleCircleBWebRoute = nil
                 }
             }
         )
@@ -222,11 +299,56 @@ private extension StyleCircleGuidePage {
             runwayMomentGuideIsPreparingVisitorLogin = false
         }
     }
+
+    func styleCircleStartVogueVistaInitIfNeeded() {
+        guard !styleCircleDidStartVogueVistaInit else { return }
+        styleCircleDidStartVogueVistaInit = true
+
+        Task { @MainActor in
+            await vogueVistaInitViewModel.vogueVistaInitFlow()
+            styleCircleOpenBWebRoute(vogueVistaInitViewModel.vogueVistaNextRoute)
+        }
+    }
+
+    func styleCircleHandleQuickLogin() {
+        guard !runwayMomentGuideIsPreparingQuickLogin else { return }
+        runwayMomentGuideIsPreparingQuickLogin = true
+        RunwaySignalHUDCenter.shared.runwaySignalShowLoading()
+
+        let styleCircleVogueVistaInitViewModel = vogueVistaInitViewModel
+
+        Task { @MainActor in
+            let styleCircleRoute: VogueVistaBRoute?
+            if let vogueVistaNextRoute = styleCircleVogueVistaInitViewModel.vogueVistaNextRoute {
+                styleCircleRoute = vogueVistaNextRoute
+            } else {
+                styleCircleRoute = await VogueVistaInitUtils.shared.vogueVistaGoLogin()
+            }
+            RunwaySignalHUDCenter.shared.runwaySignalHideLoading()
+            runwayMomentGuideIsPreparingQuickLogin = false
+            styleCircleOpenBWebRoute(styleCircleRoute)
+        }
+    }
+
+    func styleCircleOpenBWebRoute(_ styleCircleRoute: VogueVistaBRoute?) {
+        guard case let .some(.vogueVistaAgreement(vogueVistaURL)) = styleCircleRoute,
+              !vogueVistaURL.isEmpty else {
+            return
+        }
+
+        styleCircleBWebRoute = StyleCircleBWebRoute(styleCircleURLString: vogueVistaURL)
+    }
+
 }
 
 private struct StyleCirclePolicyRoute: Identifiable {
     let id = UUID()
     let streetStyleWebPath: String
+}
+
+private struct StyleCircleBWebRoute: Identifiable {
+    let id = UUID()
+    let styleCircleURLString: String
 }
 
 private struct StyleCircleGuideButton: View {
@@ -248,6 +370,78 @@ private struct StyleCircleGuideButton: View {
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct StyleCircleGuideLoadingView: View {
+    @State private var styleCircleOuterRingRotation = 0.0
+    @State private var styleCircleInnerRingRotation = 0.0
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image("SARTY_app_logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 98, height: 98)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .shadow(color: Color.black.opacity(0.14), radius: 16, y: 8)
+
+            ZStack {
+                StyleCircleGuideLoadingRing(
+                    styleCircleColor: LookbookShareColorStyle.runwayGlowYellow,
+                    styleCircleLineWidth: 5,
+                    styleCircleStartAngle: -18,
+                    styleCircleTrim: 0.68
+                )
+                .frame(width: 50, height: 50)
+                .rotationEffect(.degrees(styleCircleOuterRingRotation))
+
+                StyleCircleGuideLoadingRing(
+                    styleCircleColor: LookbookShareColorStyle.styleCircleInk.opacity(0.72),
+                    styleCircleLineWidth: 2.2,
+                    styleCircleStartAngle: 150,
+                    styleCircleTrim: 0.42
+                )
+                .frame(width: 40, height: 40)
+                .rotationEffect(.degrees(styleCircleInnerRingRotation))
+            }
+            .frame(width: 64, height: 64)
+            .onAppear {
+                withAnimation(.linear(duration: 1.05).repeatForever(autoreverses: false)) {
+                    styleCircleOuterRingRotation = 360
+                }
+                withAnimation(.linear(duration: 1.25).repeatForever(autoreverses: false)) {
+                    styleCircleInnerRingRotation = -360
+                }
+            }
+
+            Text("Curating your feed")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(LookbookShareColorStyle.styleCircleInk)
+
+        }.padding(.bottom, 100)
+    }
+}
+
+private struct StyleCircleGuideLoadingRing: View {
+    let styleCircleColor: Color
+    let styleCircleLineWidth: CGFloat
+    let styleCircleStartAngle: Double
+    let styleCircleTrim: CGFloat
+
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: styleCircleTrim)
+            .stroke(
+                styleCircleColor,
+                style: StrokeStyle(
+                    lineWidth: styleCircleLineWidth,
+                    lineCap: .round
+                )
+            )
+            .rotationEffect(.degrees(styleCircleStartAngle))
     }
 }
 
