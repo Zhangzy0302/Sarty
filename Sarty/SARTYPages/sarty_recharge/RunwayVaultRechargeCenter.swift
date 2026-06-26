@@ -265,7 +265,7 @@ final class RunwayVaultStoreKitOneCenter: NSObject {
                     runwayVaultQueue.finishTransaction(runwayVaultTransaction)
 
                     if runwayVaultDidVerify {
-                        RunwayRippleAdjustManager.shared.runwayRippleTrackPurchase(
+                        RunwayRippleAdjustManager.shared.runwayRippleTrackRechargeSuccess(
                             dollar: runwayVaultPack.runwayVaultRunwayPrice
                         )
                         runwayVaultComplete(productId: runwayVaultProductId, result: .success)
@@ -338,7 +338,7 @@ extension RunwayVaultStoreKitOneCenter: SKPaymentTransactionObserver {
 
                     if case .success = runwayVaultResult,
                        let runwayVaultPack = runwayVaultPackage(for: runwayVaultProductId) {
-                        RunwayRippleAdjustManager.shared.runwayRippleTrackPurchase(
+                        RunwayRippleAdjustManager.shared.runwayRippleTrackRechargeSuccess(
                             dollar: runwayVaultPack.runwayVaultRunwayPrice
                         )
                     }

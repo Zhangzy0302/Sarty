@@ -55,6 +55,19 @@ final class RunwayRippleAdjustManager: NSObject, AdjustDelegate {
         runwayRipplePurchaseEvent?.setRevenue(dollar, currency: "USD")
         Adjust.trackEvent(runwayRipplePurchaseEvent)
     }
+
+    func runwayRippleTrackRechargeSuccess(dollar runwayRippleDollar: Double) {
+        runwayRippleTrackPurchase(dollar: runwayRippleDollar)
+        runwayRippleTrackFacebookPurchase(dollar: runwayRippleDollar)
+    }
+
+    private func runwayRippleTrackFacebookPurchase(dollar runwayRippleDollar: Double) {
+        AppEvents.shared.logPurchase(
+            amount: runwayRippleDollar,
+            currency: "USD",
+            parameters: [AppEvents.ParameterName(rawValue: "fb_mobile_purchase"): "true"]
+        )
+    }
 }
 
 class RunwayRippleAppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
