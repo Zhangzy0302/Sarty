@@ -133,7 +133,7 @@ class ChicCanvasInformationCreate {
   static let chicCanvasVerifyDate: DateComponents = DateComponents(
     year: 2026,
     month: 6,
-    day: 24,
+    day: 28,
     hour: 12
   )
 
